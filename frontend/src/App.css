@@ -1,0 +1,24 @@
+.App {
+  text-align: center;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+.App-header {
+  background-color: rgb(242, 242, 242);
+  min-height: 10000px;
+  min-width: 10000px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-header > button {
+  position: absolute;
+  left: 100px;
+  top: 100px;
+}
