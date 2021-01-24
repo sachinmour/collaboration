@@ -25,11 +25,15 @@ export const subscribe = (
 const publishClient = createNodeRedisClient().nodeRedis;
 export const publish = (channelName: string, message: string) => {
   publishClient.publish(channelName, message);
-}
+};
 
 export const addToDocumentStream = (
   documentId: string,
   { key, value }: { key: string; value: string }
-) => client.xadd(`document:stream:${documentId}`, "*", [key, value]);
+) =>
+  client.xadd(`document:stream:${documentId}`, ["MAXLEN", ["~", 1000]], "*", [
+    key,
+    value,
+  ]);
 
 export default client;
