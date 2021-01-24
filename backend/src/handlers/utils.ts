@@ -83,14 +83,12 @@ export const listenForXStream = async ({
       const events: any[] = [];
       rawRes[0][1].forEach(([id, [key, value]]: [string, [string, string]]) => {
         const data = JSON.parse(value);
-        if (data.sender !== socket.data.userId) {
-          const currentValue = {
-            event_type: key,
-            data,
-            redis_stream_id: id,
-          };
-          events.push(currentValue);
-        }
+        const currentValue = {
+          event_type: key,
+          data,
+          redis_stream_id: id,
+        };
+        events.push(currentValue);
       });
       events.forEach((event) => {
         redisId = event.redis_stream_id;
