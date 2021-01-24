@@ -1,6 +1,7 @@
 const DOCUMENT = {
   boxes: {},
   users: {},
+  redis_stream_id: 0
 };
 
 export const getDocument = () => DOCUMENT;

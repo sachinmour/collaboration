@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 
 import DraggableItem from "./DraggableItem";
 import User from "./User";
-import { getDocument, getBox, getUser } from "./rawData";
+import { getDocument, getBox } from "./rawData";
 import "./App.css";
 
 const getClient = (e) => {
@@ -55,7 +55,7 @@ class App extends React.Component {
     window.addEventListener("touchmove", this.onDrag);
     window.addEventListener("mouseup", this.onDragEnd);
     window.addEventListener("touchend", this.onDragEnd);
-    this.socket = io("http://localhost:5000", {
+    this.socket = io("http://192.168.0.140:5000", {
       transports: ["websocket"],
       query: {
         userId: LOCAL_USER_ID,
@@ -63,7 +63,7 @@ class App extends React.Component {
       },
     });
     await axios
-      .get(`http://localhost:5000/get-document/${DOCUMENT_ID}`)
+      .get(`http://192.168.0.140:5000/get-document/${DOCUMENT_ID}`)
       .then((res) => {
         const document = res.data;
         Object.assign(THE_DOCUMENT, document);
@@ -93,37 +93,21 @@ class App extends React.Component {
 
   handleSocket = () => {
     console.log("handle socket fired");
-    this.socket.emit("subscribe_to_document");
+    this.socket.emit("subscribe_to_document", THE_DOCUMENT.redis_stream_id);
     this.socket.on("update_box", (data) => {
       const { boxes } = this.state;
-      const { id, updated_by, x, y } = data;
+      const { id, updated_by, x, y, redis_stream_id } = data;
       const box = getBox(id);
       if (LOCAL_USER_ID !== updated_by) {
         boxes[id].ref.current.setPosition(x, y);
       }
+      THE_DOCUMENT.redis_stream_id = redis_stream_id;
       Object.assign(box, data);
     });
     this.socket.on("add_box", (box) => {
       if (box.updated_by !== LOCAL_USER_ID) {
         this.addBox(box);
       }
-    });
-    this.socket.on("user_connected", (data) => {
-      THE_DOCUMENT.users = data.reduce((users, userId) => {
-        if (userId !== LOCAL_USER_ID) {
-          users[userId] = {
-            x: 0,
-            y: 0,
-            id: userId,
-            ref: THE_DOCUMENT.users[userId]?.ref || React.createRef(),
-          };
-        }
-        return users;
-      }, {});
-
-      this.setState(() => ({
-        users: { ...THE_DOCUMENT.users },
-      }));
     });
     this.socket.on("user_disconnected", (userId) => {
       if (userId !== LOCAL_USER_ID) {
@@ -141,6 +125,16 @@ class App extends React.Component {
           user.x = location[0];
           user.y = location[1];
           user.ref.current.setPosition(location[0], location[1]);
+        } else {
+          THE_DOCUMENT.users[userId] = {
+            x: location[0],
+            y: location[1],
+            id: userId,
+            ref: React.createRef(),
+          };
+          this.setState(() => ({
+            users: { ...THE_DOCUMENT.users },
+          }));
         }
       }
     });
@@ -155,6 +149,7 @@ class App extends React.Component {
         x: 0,
         y: 0,
         updated_by: LOCAL_USER_ID,
+        redis_stream_id: THE_DOCUMENT.redis_stream_id,
         updated_at: new Date().toISOString(),
       },
       newBox
@@ -188,7 +183,7 @@ class App extends React.Component {
       const last_updated_at = documentBox.updated_at;
       if (
         last_updated_by === LOCAL_USER_ID ||
-        new Date().getTime() - new Date(last_updated_at).getTime() > 500
+        new Date().getTime() - new Date(last_updated_at).getTime() > 2000
       ) {
         const [boxX, boxY] = this.activeBox.ref.current.onDrag(
           clientX,
@@ -203,7 +198,7 @@ class App extends React.Component {
   };
 
   onDragStart = (e, boxId) => {
-    this.activeBox = this.state.boxes[boxId];
+    this.activeBox = THE_DOCUMENT.boxes[boxId];
     const [clientX, clientY] = getClient(e);
     this.activeBox.ref.current.onDragStart(clientX, clientY);
   };
