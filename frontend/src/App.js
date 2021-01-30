@@ -55,7 +55,7 @@ class App extends React.Component {
     window.addEventListener("touchmove", this.onDrag);
     window.addEventListener("mouseup", this.onDragEnd);
     window.addEventListener("touchend", this.onDragEnd);
-    this.socket = io("http://192.168.0.140:5000", {
+    this.socket = io("http://localhost:6060", {
       transports: ["websocket"],
       query: {
         userId: LOCAL_USER_ID,
@@ -63,7 +63,7 @@ class App extends React.Component {
       },
     });
     await axios
-      .get(`http://192.168.0.140:5000/get-document/${DOCUMENT_ID}`)
+      .get(`http://localhost:6060/get-document/${DOCUMENT_ID}`)
       .then((res) => {
         const document = res.data;
         Object.assign(THE_DOCUMENT, document);

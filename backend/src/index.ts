@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 
 import handle from "./handlers";
 
@@ -15,7 +16,7 @@ const server = app.listen(PORT, () => {
 });
 
 // Static files
-// app.use(express.static("public"));
+app.use(express.static("public"));
 
 // Socket setup
 const io = socket(server, {
@@ -26,3 +27,7 @@ const io = socket(server, {
 });
 
 handle(app, io);
+
+app.get("/*", function (req, res) {
+  res.sendFile(path.resolve(__dirname + "../public/index.html"));
+});

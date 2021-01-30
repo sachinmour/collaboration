@@ -1,0 +1,53 @@
+---
+name: Main Workflow - Build and Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      #       - name: Variable Substitution
+      #         uses: falnyr/replace-env-vars-action@master
+      #         env:
+      #           AUTH_TOKEN: "rkVGHrRp8"
+      #         with:
+      #           filename: html/.dsmrc
+
+      #       - name: Variable Substitution
+      #         uses: falnyr/replace-env-vars-action@master
+      #         env:
+      #           AUTH_TOKEN: "rkVGHrRp8"
+      #         with:
+      #           filename: react/.dsmrc
+
+      - name: Install and Build Frontend
+        run: cd frontend && yarn && yarn build
+
+      - name: Install and build Backend
+        run: pwd
+#       - name: Deploy to DSM
+#         run: yarn deploy-dsm
+#
+#       - name: update react package
+#         uses: falnyr/replace-env-vars-action@master
+#         with:
+#           filename: react/package.json
+#
+#       - name: Deploy to Storybook
+#         run: yarn deploy-storybook -- --ci
+#         env:
+#           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
