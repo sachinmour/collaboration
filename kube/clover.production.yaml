@@ -1,0 +1,56 @@
+---
+# ... Service YAML definition
+apiVersion: v1
+kind: Service
+metadata:
+  name: clover
+  labels:
+    app: clover
+  annotations:
+    # Note that the backend talks over HTTP.
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:591389413907:certificate/9a9e094e-45d8-481d-82ef-0d0359e8f854
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+spec:
+  selector:
+    app: clover
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: 5000
+      protocol: TCP
+  type: LoadBalancer
+
+---
+# ... Deployment YAML definition
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clover
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: clover
+  template:
+    metadata:
+      labels:
+        app: clover
+    spec:
+      containers:
+        - name: clover
+          image: 591389413907.dkr.ecr.us-east-1.amazonaws.com/__IMAGE_NAME__
+          ports:
+            - containerPort: 5000
+          env:
+            - name: REDIS_HOST
+              value: "clover.zide8g.ng.0001.use1.cache.amazonaws.com"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: NODE_ENV
+              value: production
+          imagePullPolicy: Always

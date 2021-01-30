@@ -2,6 +2,10 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 
+if ((process.env.NODE_ENV = "development")) {
+  require("dotenv").config();
+}
+
 import handle from "./handlers";
 
 const socket = require("socket.io");
@@ -16,7 +20,7 @@ const server = app.listen(PORT, () => {
 });
 
 // Static files
-app.use(express.static("public"));
+app.use(express.static(path.resolve(__dirname + "/../public")));
 
 // Socket setup
 const io = socket(server, {
@@ -29,5 +33,5 @@ const io = socket(server, {
 handle(app, io);
 
 app.get("/*", function (req, res) {
-  res.sendFile(path.resolve(__dirname + "../public/index.html"));
+  res.sendFile(path.resolve(__dirname + "/../public/index.html"));
 });

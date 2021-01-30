@@ -1,12 +1,19 @@
 import { createNodeRedisClient } from "handy-redis";
 
-const client = createNodeRedisClient();
+const getRedisClient = () =>
+  createNodeRedisClient({
+    // @ts-ignore
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+  });
+
+const client = getRedisClient();
 
 client.nodeRedis.on("error", (error) => {
   console.error("REDIS ERROR", error);
 });
 
-const subscribeClient = createNodeRedisClient().nodeRedis;
+const subscribeClient = getRedisClient().nodeRedis;
 const subscribers: any = {};
 subscribeClient.on("message", (channel, message) => {
   if (subscribers[channel]) {
@@ -22,7 +29,7 @@ export const subscribe = (
   subscribeClient.subscribe(channelName);
 };
 
-const publishClient = createNodeRedisClient().nodeRedis;
+const publishClient = getRedisClient().nodeRedis;
 export const publish = (channelName: string, message: string) => {
   publishClient.publish(channelName, message);
 };

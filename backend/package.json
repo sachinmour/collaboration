@@ -7,7 +7,7 @@
   "author": "Sachin Mour",
   "license": "MIT",
   "scripts": {
-    "start:dev": "ts-node-dev src/index.ts",
+    "start:dev": "NODE_ENV=development ts-node-dev src/index.ts",
     "build": "tsc",
     "start": "node build/index.js"
   },

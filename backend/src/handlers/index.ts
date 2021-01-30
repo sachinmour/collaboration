@@ -72,6 +72,7 @@ const handle = (app: Express, io: Socket) => {
     console.log("Made socket connection");
 
     socket.on("subscribe_to_document", (last_redis_stream_id: string) => {
+      console.log("subscribe_to_document");
       const { data } = socket;
       listenForXStream({
         documentId: data.documentId,

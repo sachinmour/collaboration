@@ -27,18 +27,51 @@ jobs:
       #         with:
       #           filename: html/.dsmrc
 
-      #       - name: Variable Substitution
-      #         uses: falnyr/replace-env-vars-action@master
-      #         env:
-      #           AUTH_TOKEN: "rkVGHrRp8"
-      #         with:
-      #           filename: react/.dsmrc
-
       - name: Install and Build Frontend
         run: cd frontend && yarn && yarn build
 
       - name: Install and build Backend
-        run: pwd
+        run: cd backend && yarn && yarn build
+
+      - name: Build Docker Image
+        run: docker build --tag clover .
+
+      - name: Get Time
+        id: time
+        uses: nanzm/get-time-action@v1.1
+        with:
+          timeZone: 0
+          format: "YYYY-MM-DD-HH-mm-ss"
+
+      - name: Set ENV Image Name
+        run: |
+          echo "ecr_image_name=clover:${{ steps.time.outputs.time }}-UTC" >> $GITHUB_ENV
+
+      - name: Variable Substitution
+        uses: falnyr/replace-env-vars-action@master
+        env:
+          IMAGE_NAME: ${{ env.ecr_image_name }}
+        with:
+          filename: kube/clover.production.yaml
+
+      - name: Push to ECR
+        id: ecr
+        uses: jwalton/gh-ecr-push@v1
+        with:
+          access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: us-east-1
+          local-image: clover
+          image: ${{ env.ecr_image_name }}
+
+      - name: Push image to eks cluster (clover)
+        uses: ianbelcher/eks-kubectl-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
+          cluster_name: clover
+          args: apply -f kube/clover.production.yaml
 #       - name: Deploy to DSM
 #         run: yarn deploy-dsm
 #

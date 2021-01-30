@@ -55,29 +55,27 @@ class App extends React.Component {
     window.addEventListener("touchmove", this.onDrag);
     window.addEventListener("mouseup", this.onDragEnd);
     window.addEventListener("touchend", this.onDragEnd);
-    this.socket = io("http://localhost:6060", {
+    this.socket = io("/", {
       transports: ["websocket"],
       query: {
         userId: LOCAL_USER_ID,
         documentId: DOCUMENT_ID,
       },
     });
-    await axios
-      .get(`http://localhost:6060/get-document/${DOCUMENT_ID}`)
-      .then((res) => {
-        const document = res.data;
-        Object.assign(THE_DOCUMENT, document);
-        const boxIds = Object.keys(THE_DOCUMENT.boxes);
-        boxIds.forEach(
-          (boxId) => (THE_DOCUMENT.boxes[boxId].ref = React.createRef())
-        );
-        this.setState(() => ({
-          loading: false,
-          boxes: {
-            ...THE_DOCUMENT.boxes,
-          },
-        }));
-      });
+    await axios.get(`/get-document/${DOCUMENT_ID}`).then((res) => {
+      const document = res.data;
+      Object.assign(THE_DOCUMENT, document);
+      const boxIds = Object.keys(THE_DOCUMENT.boxes);
+      boxIds.forEach(
+        (boxId) => (THE_DOCUMENT.boxes[boxId].ref = React.createRef())
+      );
+      this.setState(() => ({
+        loading: false,
+        boxes: {
+          ...THE_DOCUMENT.boxes,
+        },
+      }));
+    });
     this.socket.on("connect", () => {
       this.createThrottledFunctions();
       this.handleSocket();
