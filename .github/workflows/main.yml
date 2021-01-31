@@ -20,13 +20,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      #       - name: Variable Substitution
-      #         uses: falnyr/replace-env-vars-action@master
-      #         env:
-      #           AUTH_TOKEN: "rkVGHrRp8"
-      #         with:
-      #           filename: html/.dsmrc
-
       - name: Install and Build Frontend
         run: cd frontend && yarn && yarn build
 
@@ -51,6 +44,7 @@ jobs:
         uses: falnyr/replace-env-vars-action@master
         env:
           IMAGE_NAME: ${{ env.ecr_image_name }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
         with:
           filename: kube/clover.production.yaml
 
@@ -72,15 +66,3 @@ jobs:
           aws_region: us-east-1
           cluster_name: clover
           args: apply -f kube/clover.production.yaml
-#       - name: Deploy to DSM
-#         run: yarn deploy-dsm
-#
-#       - name: update react package
-#         uses: falnyr/replace-env-vars-action@master
-#         with:
-#           filename: react/package.json
-#
-#       - name: Deploy to Storybook
-#         run: yarn deploy-storybook -- --ci
-#         env:
-#           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}

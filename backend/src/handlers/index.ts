@@ -36,6 +36,7 @@ const handle = (app: Express, io: Socket) => {
   saveToDatabaseIfNew().catch((err) => {
     console.error("Not able to save to database", err);
   });
+
   app.get("/get-document/:id", async (req, res) => {
     const document = await getDocument(req.params.id);
     return res.json(document).end();

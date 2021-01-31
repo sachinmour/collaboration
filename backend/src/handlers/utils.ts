@@ -45,6 +45,7 @@ export const onUpdateBox = (
   const localBox = document.boxes?.[boxId];
   if (
     localBox &&
+    // only update if no other user is updating the box
     (localBox.updated_by === sender ||
       date.getTime() - new Date(localBox.updated_at).getTime() > 2000)
   ) {

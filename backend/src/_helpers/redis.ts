@@ -8,7 +8,6 @@ const getRedisClient = () =>
   });
 
 const client = getRedisClient();
-
 client.nodeRedis.on("error", (error) => {
   console.error("REDIS ERROR", error);
 });
@@ -20,7 +19,6 @@ subscribeClient.on("message", (channel, message) => {
     subscribers[channel](message);
   }
 });
-
 export const subscribe = (
   channelName: string,
   cb: (message: string) => any

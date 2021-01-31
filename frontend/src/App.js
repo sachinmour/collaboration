@@ -10,6 +10,13 @@ import User from "./User";
 import { getDocument, getBox } from "./rawData";
 import "./App.css";
 
+let backendEndPoint = "";
+let backendEndPointWS = "";
+if (process.env.NODE_ENV === "development") {
+  backendEndPoint = "http://" + process.env.REACT_APP_BACKEND_ENDPOINT;
+  backendEndPointWS = process.env.REACT_APP_BACKEND_ENDPOINT;
+}
+
 const getClient = (e) => {
   if (e.type === "touchmove") {
     return [e.touches[0].clientX, e.touches[0].clientY];
@@ -36,6 +43,9 @@ class App extends React.Component {
   }
 
   createThrottledFunctions = () => {
+    // make sure to create new throttle function
+    // everytime a socket is disconnect and new socket
+    // is connected
     this.throttleEmit = {
       update_box: throttle(
         (data) => this.socket.emit("update_box", data),
@@ -55,27 +65,29 @@ class App extends React.Component {
     window.addEventListener("touchmove", this.onDrag);
     window.addEventListener("mouseup", this.onDragEnd);
     window.addEventListener("touchend", this.onDragEnd);
-    this.socket = io("/", {
+    this.socket = io(`${backendEndPointWS}/`, {
       transports: ["websocket"],
       query: {
         userId: LOCAL_USER_ID,
         documentId: DOCUMENT_ID,
       },
     });
-    await axios.get(`/get-document/${DOCUMENT_ID}`).then((res) => {
-      const document = res.data;
-      Object.assign(THE_DOCUMENT, document);
-      const boxIds = Object.keys(THE_DOCUMENT.boxes);
-      boxIds.forEach(
-        (boxId) => (THE_DOCUMENT.boxes[boxId].ref = React.createRef())
-      );
-      this.setState(() => ({
-        loading: false,
-        boxes: {
-          ...THE_DOCUMENT.boxes,
-        },
-      }));
-    });
+    await axios
+      .get(`${backendEndPoint}/get-document/${DOCUMENT_ID}`)
+      .then((res) => {
+        const document = res.data;
+        Object.assign(THE_DOCUMENT, document);
+        const boxIds = Object.keys(THE_DOCUMENT.boxes);
+        boxIds.forEach(
+          (boxId) => (THE_DOCUMENT.boxes[boxId].ref = React.createRef())
+        );
+        this.setState(() => ({
+          loading: false,
+          boxes: {
+            ...THE_DOCUMENT.boxes,
+          },
+        }));
+      });
     this.socket.on("connect", () => {
       this.createThrottledFunctions();
       this.handleSocket();
