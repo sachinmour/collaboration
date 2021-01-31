@@ -1,4 +1,5 @@
 import express from "express";
+import helmet from "helmet";
 import cors from "cors";
 import path from "path";
 
@@ -14,6 +15,8 @@ const socket = require("socket.io");
 const PORT = 5000;
 const app = express();
 app.use(cors());
+app.use(helmet({ contentSecurityPolicy: false }));
+
 const server = app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
   console.log(`http://localhost:${PORT}`);
