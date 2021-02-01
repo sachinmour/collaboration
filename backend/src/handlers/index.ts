@@ -25,10 +25,9 @@ const saveToDatabaseIfNew = async () => {
     }
   });
   await Promise.all(saveDocumentsPromise);
-  console.log("Successfully saved to database");
   await new Promise((resolve) =>
-    // run this every 30 sec
-    setTimeout(() => resolve(saveToDatabaseIfNew()), 30 * 1000)
+    // run this every 5 sec
+    setTimeout(() => resolve(saveToDatabaseIfNew()), 5 * 1000)
   );
 };
 
