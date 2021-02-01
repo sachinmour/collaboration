@@ -18,6 +18,11 @@
 Any browser with websocket is supported. If websockets are not working in your browser for any
 reason, the app will not work.
 
+### Need to know
+To make it easier for testing, everytime you refresh your browser, you will be randomly
+assigned a new user. So if you switch between tabs or even refresh your current tab, you will
+be a new user
+
 ### How to develop locally
 
 1. Make sure you have following things already in the system
