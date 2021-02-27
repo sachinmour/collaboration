@@ -1,5 +1,3 @@
-# [https://clover.sachinmour.com](https://clover.sachinmour.com)
-
 ![Architecture Diagram](./collaborative.svg)
 
 ### Architecture Details
